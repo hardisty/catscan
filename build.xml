@@ -1,0 +1,22 @@
+<project name="CatScan" default="dist" basedir=".">
+    <description>
+        Build file for CatScan
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="."/>
+  <property name="build" location="bin"/>
+  <property name="dist"  location="."/>
+
+
+  <target name="dist" 
+        description="generate the distribution" >
+
+  <tstamp>
+    <format property="TODAY" pattern="HH-dd-MMMM-yyyy" locale="en,UK"/>
+  </tstamp>
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <zip destfile="${dist}/CatScan-${TODAY}.zip" basedir="${build}"/>
+  </target>
+
+
+</project>
