@@ -2,7 +2,7 @@
 
 = Introduction =
 
-CatScan is a program that allows the user to run experiments on how icons are categorized. These directions are intended to be complete and accurate. Suggestions and corrections are very welcome, please contact Frank Hardisty (hardisty@psu.edu, lead developer) and/or Alex Klippel (klippel.
+CatScan is a program that allows the user to run experiments on how icons are categorized. These directions are intended to be complete and accurate. Suggestions and corrections are very welcome, please contact Frank Hardisty (hardisty@psu.edu, lead developer) and/or Alex Klippel (klippel@psu.edu, project manager). 
 
 = Details =
 
