@@ -6,7 +6,17 @@ CatScan is a program that allows the user to run experiments on how icons are ca
 
 = Details =
 
-Step 1. Download CatScan. The most recent binary (runnable) version is here: . 
+The following instructions have been tested using the Windows 7 operating system. 
+
+Step 1. Verify that you have a recent version of Java correctly installed. Open a command line window. 
+
+Step 2. Download CatScan. The most recent binary (runnable) version is here: http://code.google.com/p/catscan/downloads/detail?name=CatScan-static-hurricanes-11-09-April-2010.zip. 
+
+Step 3. Unzip the file to a local directory. 7-Zip works well for this purpose, the native Windows zip file extractor should work as well. 
+
+Step 4. Click on the "Run CatScan.bat" file to start CatScan. 
+
+Step 2.  
 Add your content here.  Format your content with:
   * Text in *bold* or _italic_
   * Headings, paragraphs, and lists
