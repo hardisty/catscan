@@ -8,7 +8,7 @@ CatScan is a program that allows the user to run experiments on how icons are ca
 
 The following instructions have been tested using the Windows 7 operating system. 
 
-Step 1. Verify that you have a recent version of Java correctly installed. Open a command line window. One way to do this is to type "cmd" into the Windows start search box, as seen here http://code.google.com/p/catscan/downloads/detail?name=command_window.png. Type in "java -version" in the command window. If you see something like:  
+Step 1. Verify that you have a recent version of Java correctly installed. Open a command line window. One way to do this is to type "cmd" into the Windows start search box, as seen here http://catscan.googlecode.com/files/command_window.png. Type in "java -version" in the command window. If you see something like:  
 
 java version "1.6.0_21"
 Java(TM) SE Runtime Environment (build 1.6.0_21-b07)
