@@ -12,25 +12,31 @@ import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 
 public class TextScreen extends JDialog implements ActionListener {
 	JButton start;
-	MyTimerTask myTask;
+
 	static boolean isLong = false;
 	static int seconds = 60;
+	boolean promptForText = false;
 
-	public TextScreen(String text, Frame owner, int x, int y) {
+	public TextScreen(String text, Frame owner, int x, int y,
+			boolean promptForText) {
 
 		super(owner, true);
+		this.promptForText = promptForText;
 		if (isLong) {
 			setUndecorated(true);
 		}
@@ -42,15 +48,17 @@ public class TextScreen extends JDialog implements ActionListener {
 
 		JPanel txtfld = new JPanel(new BorderLayout(20, 20));
 
-		JTextArea txta = new JTextArea(text);
+		JTextPane txta = new JTextPane();
+		txta.setContentType("text/html");
+		txta.setText(text);
 		txta.setFont(new Font(getFont().getFontName(),
 				Font.LAYOUT_LEFT_TO_RIGHT, 14));
 		txta.setPreferredSize(new Dimension(x - 40, y - 40));
 
 		txta.setBackground(getBackground());
 		txta.setEditable(false);
-		txta.setLineWrap(true);
-		txta.setWrapStyleWord(true);
+		// txta.setLineWrap(true);
+		// txta.setWrapStyleWord(true);
 
 		txtfld.add(txta, BorderLayout.CENTER);
 		txtfld.setBorder(new LineBorder(getBackground(), 15));
@@ -66,11 +74,30 @@ public class TextScreen extends JDialog implements ActionListener {
 		JPanel bbar = new JPanel();
 		bbar.setLayout(new BoxLayout(bbar, BoxLayout.Y_AXIS));
 		start.setAlignmentX(Component.CENTER_ALIGNMENT);
+		if (promptForText) {
+			bbar.add(this.makeQuestionPanel());
+			bbar.add(Box.createRigidArea(new Dimension(10, 10)));
+		}
 		bbar.add(start);
 		bbar.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		this.add(bbar, BorderLayout.SOUTH);
 
+	}
+
+	JTextPane userText;
+
+	private JPanel makeQuestionPanel() {
+		JPanel qPan = new JPanel();
+		JLabel lab = new JLabel("What do the icons depict?");
+		qPan.add(lab);
+		userText = new JTextPane();
+		userText.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		Dimension size = new Dimension(150, 50);
+		userText.setPreferredSize(size);
+		qPan.add(userText);
+
+		return qPan;
 	}
 
 	private JPanel makePatternPanel() {
@@ -122,6 +149,13 @@ public class TextScreen extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent event) {
 
 		String cmd = event.getActionCommand();
+		if (cmd.equals("OK") && this.userText != null
+				&& this.userText.getText().length() <= 0 && this.promptForText
+				&& DataObject.demoMode == false) {
+			JOptionPane.showMessageDialog(this,
+					"Please answer the question before proceeding.");
+			return;
+		}
 
 		if (cmd.equals("OK")) {
 			setVisible(false);
@@ -134,7 +168,7 @@ public class TextScreen extends JDialog implements ActionListener {
 	}
 
 	private void runTimer(JButton butt, int seconds) {
-		myTask = new MyTimerTask(butt);
+		MyTimerTask myTask = new MyTimerTask(butt);
 		Timer myTimer = new Timer();
 
 		/*
@@ -163,6 +197,7 @@ public class TextScreen extends JDialog implements ActionListener {
 		@Override
 		public void run() {
 			System.out.println("Timer task executed.");
+
 			butt.setEnabled(true);
 			cancel();
 		}

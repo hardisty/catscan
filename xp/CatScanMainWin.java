@@ -58,7 +58,7 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 	// flags
 	boolean userNamesGroups = true;
 
-	static String TimeStamp = "Last Modified = 2010-1-29";
+	// static String TimeStamp = "Last Modified = 2010-1-29";
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
 
 	public static String now() {
@@ -82,7 +82,7 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 		} else {
 			data = dob;
 			data.resetResults();
-			data.log.add(CatScanMainWin.TimeStamp + "\n");
+			// data.log.add(CatScanMainWin.TimeStamp + "\n");
 			data.log.add("Run date = " + now());
 			data.log.add("Started at " + System.currentTimeMillis() + "\n");
 		}
@@ -135,10 +135,10 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 		TextScreen bla = null;
 		if (DataObject.secondRun == false) {
 			TextScreen.seconds = 60;
-			bla = new TextScreen(useThis, this, 600, 600);
+			bla = new TextScreen(useThis, this, 600, 600, true);
 		} else {
 			TextScreen.seconds = 5;
-			bla = new TextScreen(secondText, this, 600, 600);
+			bla = new TextScreen(secondText, this, 600, 600, false);
 			trail = false;
 		}
 
@@ -318,22 +318,17 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 				&& (DataObject.demoMode || dragPictureGUI.pix.isEmpty())) {
 			GroupPanel grp = null;
 			if (trail) {
-				bla = new TextScreen(
-						"Please press OK to begin with the main experiment!",
-						this, 300, 200);
+				String secondText = getSecondInstructions();
+				bla = new TextScreen(secondText, this, 300, 200, false);
 				bla.setVisible(true);
 				bla.dispose();
 				CatScanMainWin xpmf = new CatScanMainWin(false, data);
 
 				if (userNamesGroups == false) {
-					xpmf
-							.addGroup("Statistically significant clustering of ONLY blue squares");
-					xpmf
-							.addGroup("Statistically significant clustering of ONLY green squares");
-					xpmf
-							.addGroup("Statistically significant clustering of both blue squares and green squares");
-					xpmf
-							.addGroup("Statistically significant dispersed pattern");
+					xpmf.addGroup("Statistically significant clustering of ONLY blue squares");
+					xpmf.addGroup("Statistically significant clustering of ONLY green squares");
+					xpmf.addGroup("Statistically significant clustering of both blue squares and green squares");
+					xpmf.addGroup("Statistically significant dispersed pattern");
 					xpmf.addGroup("Random pattern");
 				} else {
 					// xpmf.addGroup("");
@@ -345,20 +340,18 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 				// XXX is above line OK?
 			} else {
 
-				data.log
-						.add("Finished at " + System.currentTimeMillis() + "\n");
+				data.log.add("Finished at " + System.currentTimeMillis() + "\n");
 				data.endTime = System.currentTimeMillis();
 				data.taskDuration = data.endTime - data.startTime;
 				double timeInSeconds = (data.taskDuration / 1000d);
-				data.log
-						.add("Sorting took this many seconds: " + timeInSeconds);
+				data.log.add("Sorting took this many seconds: " + timeInSeconds);
 				// int grpsnr = groups.size();
 				data.groups = groups;
 
 				String oldTransitionText = "Dear Participant,\n\nCongratulations! You have successfully completed the first part of the experiment. We have one follow up task that consists of two smaller tasks. You will see the groups of geometric icons that you have created again.\n\nPlease press OK to start the second part of the experiment.";
 				String transitionText = "Dear Participant,\n\nCongratulations! You have successfully completed the first part of the experiment. We have one follow up task.";
 
-				bla = new TextScreen(transitionText, this, 500, 400);
+				bla = new TextScreen(transitionText, this, 500, 400, false);
 
 				bla.setVisible(true);
 				bla.dispose();
@@ -435,7 +428,7 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 
 				bla = new TextScreen(
 						"Thank you!\n\nYou have now finished the experiment. Please remain quietly seated and wait for the experimentor to give you further instructions.",
-						this, 400, 300);
+						this, 400, 300, false);
 				bla.setVisible(true);
 				System.exit(0);
 				bla.dispose();
@@ -471,9 +464,8 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 			data.log.add("NEW GROUP");
 		}
 		if (focus != null) {
-			focus.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-					.createLineBorder(Color.DARK_GRAY, 5), BorderFactory
-					.createLoweredBevelBorder()));
+			GroupPanel pan = (GroupPanel) focus;
+			pan.setColoredBorder();
 		}
 		groups.add(newGroup(label));
 		// jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().
@@ -501,7 +493,7 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 
 		String instructions = getInstructions();
 
-		TextScreen bla = new TextScreen(instructions, this, 700, 1000);
+		TextScreen bla = new TextScreen(instructions, this, 700, 1000, true);
 		bla.setVisible(true);
 		bla.dispose();
 		// dragPictureGUI.showPanel = new JPanel(new GridLayout(24, 7,10,10));
@@ -526,19 +518,35 @@ public class CatScanMainWin extends JFrame implements ActionListener {
 		// show personal data dialog
 		if (DataObject.secondRun == false) {
 			PDDialog pdd = new PDDialog(this, data);
-			// pdd.pack();
-			// pdd.setLocation(200,200);
-			// pdd.setSize(600,400);
+
 			pdd.setVisible(true);
-			// int pdX = (this.getWidth()/2) -(pdd.getWidth()/2);
-			// int pdY = (this.getHeight()/2) - (pdd.getHeight()/2);
-			// pdd.setLocation(pdX,pdY);
 		}
 	}
 
 	private String getInstructions() {
-		InputStream is = this.getClass()
-				.getResourceAsStream("instructions.txt");
+		InputStream is = this.getClass().getResourceAsStream(
+				"instructions.html");
+		BufferedReader input = new BufferedReader(new InputStreamReader(is));
+		String line = "";
+		String all = "";
+		while (line != null) {
+			try {
+				line = input.readLine();
+				if (line != null) {
+					all = all + "\n" + line;
+				}
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+		}
+
+		return all;
+	}
+
+	private String getSecondInstructions() {
+		InputStream is = this.getClass().getResourceAsStream(
+				"second_instructions.html");
 		BufferedReader input = new BufferedReader(new InputStreamReader(is));
 		String line = "";
 		String all = "";
