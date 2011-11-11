@@ -30,6 +30,7 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 	String question1;
 	String question2;
 	BufferedImage image;
+	Color borderColor;
 
 	int rows;
 
@@ -60,6 +61,12 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 		demo = dm;
 		picHandler = pth;
 		number = nr;
+		UnivariatePalette pal = ColorBrewer
+				.getPalette(ColorBrewer.BrewerNames.Pastel1);
+		Color[] colors = pal.getColors(pal.maxLength);
+		int colorNum = number % pal.maxLength;
+		this.borderColor = colors[colorNum];
+		System.out.println(" color " + borderColor.getRed());
 		name = "Group " + number.toString();
 		width = parentFrame.picCatcher.getWidth() - 30;
 
@@ -71,32 +78,8 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 		// this.setSize(this.parentFrame.compl.getWidth(),rows*(picsize+25));
 		ajustSize();
 
-		/*
-		 * int width = this.parentFrame.compl.getWidth()-50;
-		 * 
-		 * showPanel.setPreferredSize(new Dimension (width-200,116));
-		 * showPanel.setMaximumSize(new Dimension (width-200,116));
-		 * this.setMinimumSize(new Dimension (width,136));
-		 * this.setPreferredSize(new Dimension (width,136));
-		 * this.setMaximumSize(new Dimension (width,136));
-		 */
-		// showPanel.setBackground(Color.CYAN);
-		// emptyPic = new PicInfo((String)null, this, picHandler, -1);
-		/*
-		 * JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT,10,10));
-		 * //JButton cn = new JButton("Change name");
-		 * //cn.addActionListener(this); //buttons.add(cn); JButton dg = new
-		 * JButton("Delete group"); dg.addActionListener(this); buttons.add(dg);
-		 * 
-		 * this.add(buttons, BorderLayout.NORTH);
-		 */
-
 		this.add(showPanel);
-		setBorder(BorderFactory.createCompoundBorder(BorderFactory
-				.createLineBorder(Color.RED, 5), BorderFactory
-				.createLoweredBevelBorder()));
-		// BorderFactory.createTitledBorder(
-		// BorderFactory.createEtchedBorder(), "Group "+number.toString()));
+		setFocusBorder();
 
 		requestFocusInWindow();
 		parentFrame.focus = this;
@@ -109,30 +92,6 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 
 	public void actionPerformed(ActionEvent arg0) {
 
-		// String cmd = arg0.getActionCommand();
-
-		// NewGroup-Button
-
-		/*
-		 * if (cmd.equals("Change name")) { JComponent grpContainer =
-		 * ((JComponent
-		 * )((Container)(arg0.getSource())).getParent().getParent()); NameInput
-		 * fg = new NameInput(parentFrame,
-		 * ((TitledBorder)grpContainer.getBorder()).getTitle());
-		 * fg.setVisible(true); fg.pack();
-		 * grpContainer.setBorder(BorderFactory.createTitledBorder(
-		 * BorderFactory.createEtchedBorder(), fg.getResult()));
-		 * //((TitledBorder)grpContainer.getBorder()).setTitle("BLA");
-		 * //contentPane.validate(); }
-		 */
-
-		/*
-		 * if (cmd.equals("Delete group")) { parentFrame.groupcount--;
-		 * dragPictureGUI.addPicLst(pix); Container parent = this.getParent();
-		 * parent.remove(this); if (parentFrame.groupcount==0) {
-		 * parentFrame.newGroup(); } else { parent.setLayout(new
-		 * GridLayout(parentFrame.groupcount, 1)); } parent.validate(); }
-		 */
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -152,17 +111,32 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 	public void mouseReleased(MouseEvent e) {
 	}
 
+	void setFocusBorder() {
+		this.setColoredBorder();
+		// CompoundBorder comp = BorderFactory.createCompoundBorder(
+		// BorderFactory.createLineBorder(Color.red, 2),
+		// BorderFactory.createLineBorder(this.borderColor, 2));
+		// setBorder(BorderFactory.createCompoundBorder(comp,
+		// BorderFactory.createLoweredBevelBorder()));
+	}
+
+	void setColoredBorder() {
+		// CompoundBorder comp = BorderFactory.createCompoundBorder(
+		// BorderFactory.createLineBorder(Color.green, 2),
+		// BorderFactory.createLineBorder(this.borderColor, 2));
+		setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(this.borderColor, 5),
+				BorderFactory.createLoweredBevelBorder()));
+	}
+
 	public void focusGained(FocusEvent e) {
 		// Draw the component with a red border
 		// indicating that it has focus.
-		parentFrame.focus.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.DARK_GRAY, 5),
-				BorderFactory.createLoweredBevelBorder()));
+		GroupPanel pan = (GroupPanel) parentFrame.focus;
+		pan.setColoredBorder();
 		parentFrame.focus = this;
-		setBorder(BorderFactory.createCompoundBorder(BorderFactory
-				.createLineBorder(Color.RED, 5), BorderFactory
-				.createLoweredBevelBorder()));
-		// this.setBorder(BorderFactory.createLineBorder(Color.RED));
+		setFocusBorder();
+
 		validate();
 		this.repaint();
 	}
@@ -170,10 +144,9 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 	public void focusLost(FocusEvent e) {
 		// Draw the component with a black border
 		// indicating that it doesn't have focus.
-		setBorder(BorderFactory.createCompoundBorder(BorderFactory
-				.createLineBorder(Color.DARK_GRAY, 5), BorderFactory
-				.createLoweredBevelBorder()));
-		// this.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+
+		setColoredBorder();
+
 		validate();
 		this.repaint();
 	}
@@ -181,13 +154,10 @@ public class GroupPanel extends MyPanel implements FocusListener, MouseListener 
 	@Override
 	public void addPic(PicInfo pi) {
 		System.out.println("adding pic " + pi.path);
-		parentFrame.focus.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.DARK_GRAY, 5),
-				BorderFactory.createLoweredBevelBorder()));
+		GroupPanel pan = (GroupPanel) parentFrame.focus;
+		pan.setColoredBorder();
 		parentFrame.focus = this;
-		setBorder(BorderFactory.createCompoundBorder(BorderFactory
-				.createLineBorder(Color.RED, 5), BorderFactory
-				.createLoweredBevelBorder()));
+		setFocusBorder();
 		showPanel.add(pi.picdata);
 		demo.pix.trimToSize();
 		pix.trimToSize();

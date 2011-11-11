@@ -87,7 +87,7 @@ public class DragPictureDemo extends MyPanel {
 
 	@Override
 	public void addPic(PicInfo p) {
-		System.out.println("addPic(PicInfo p)");
+		// System.out.println("addPic(PicInfo p)");
 
 		Component[] comps = showPanel.getComponents();
 		ArrayList<Component> nullComps = new ArrayList<Component>();
@@ -236,9 +236,15 @@ public class DragPictureDemo extends MyPanel {
 		Random rnd = new Random(seed);
 		int rndnr;
 		int rnr;
-
-		// for (int i=0; i < filenames.length; ++i)
-		// System.out.println(filenames[i]);
+		System.out.println("");
+		System.out.println("");
+		System.out.println("Collecting icon names from: " + dir);
+		System.out.println("");
+		for (int i = 0; i < filenames.length; ++i) {
+			System.out.println(filenames[i]);
+		}
+		System.out.println("");
+		System.out.println("");
 
 		for (int i = 0; i < filenames.length; ++i) {
 			x = x + filenames[i] + "\n";
@@ -252,7 +258,7 @@ public class DragPictureDemo extends MyPanel {
 
 			rnr = (Integer) (buf.get(rndnr));
 			// System.out.println(filenames[rnr]+" "+rnr);
-			lst.add(new PicInfo((dir + "\\" + filenames[rnr]), panel, ph, rnr));
+			lst.add(new PicInfo((dir + "/" + filenames[rnr]), panel, ph, rnr));
 			buf.remove(rndnr);
 		}
 
@@ -276,8 +282,9 @@ class MyComp implements Comparator {
 class MyFilter implements FilenameFilter {
 
 	public boolean accept(File dir, String name) {
+		String lowerCase = name.toLowerCase();
 
-		return (name.endsWith(".gif"));
+		return (lowerCase.endsWith(".gif") || lowerCase.endsWith(".png"));
 	}
 
 }

@@ -5,8 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +17,100 @@ import java.util.logging.Logger;
 public class ResultsCollector {
 
 	// public enum IconTypes {
+	public enum TopoClass {
+		DC1, EC1, PO1, TPP1, NTPP, TPP2, PO2, EC2, DC2, NONE;
+	}
+
+	TopoClass findClassFromName(String name) {
+		if (name.equals("DC1")) {
+			return TopoClass.DC1;
+		} else if (name.equals("EC1")) {
+			return TopoClass.EC1;
+		} else if (name.equals("PO1")) {
+			return TopoClass.PO1;
+		} else if (name.equals("TPP1")) {
+			return TopoClass.TPP1;
+		} else if (name.equals("NTPP")) {
+			return TopoClass.NTPP;
+		} else if (name.equals("PP")) {
+			return TopoClass.NTPP;
+		} else if (name.equals("PP1")) {
+			return TopoClass.NTPP;
+		} else if (name.equals("TPP2")) {
+
+			return TopoClass.TPP2;
+		} else if (name.equals("PO2")) {
+			return TopoClass.PO2;
+		} else if (name.equals("EC2")) {
+			return TopoClass.EC2;
+		} else if (name.equals("DC2")) {
+			return TopoClass.DC2;
+		}
+
+		else {
+			logger.severe("unkown topo name: " + name);
+			System.exit(0);
+
+		}
+		return null;
+	}
+
+	TopoClass findClassFromCode(String code) {
+		if (code.equals("A")) {
+			return TopoClass.DC1;
+		} else if (code.equals("B")) {
+			return TopoClass.EC1;
+		} else if (code.equals("C")) {
+			return TopoClass.PO1;
+		} else if (code.equals("D")) {
+			return TopoClass.TPP1;
+		} else if (code.equals("E")) {
+			return TopoClass.NTPP;
+		} else if (code.equals("F")) {
+
+			return TopoClass.TPP2;
+		} else if (code.equals("G")) {
+			return TopoClass.PO2;
+		} else if (code.equals("H")) {
+			return TopoClass.EC2;
+		} else if (code.equals("I")) {
+			return TopoClass.DC2;
+		} else {
+			logger.severe("unkown topo code: " + code);
+			System.exit(0);
+
+		}
+		return null;
+	}
+
+	String findCode(TopoClass tClass) {
+		if (tClass.equals(TopoClass.DC1)) {
+			return "A";
+		} else if (tClass.equals(TopoClass.EC1)) {
+			return "B";
+		} else if (tClass.equals(TopoClass.PO1)) {
+			return "C";
+		} else if (tClass.equals(TopoClass.TPP1)) {
+			return "D";
+		} else if (tClass.equals(TopoClass.NTPP)) {
+			return "E";
+		} else if (tClass.equals(TopoClass.TPP2)) {
+
+			return "F";
+		} else if (tClass.equals(TopoClass.PO2)) {
+			return "G";
+		} else if (tClass.equals(TopoClass.EC2)) {
+			return "H";
+		} else if (tClass.equals(TopoClass.DC2)) {
+			return "I";
+		} else {
+			logger.severe("unkown topo tClass: " + tClass);
+			System.exit(0);
+
+		}
+
+		return null;
+	}
 
 	final static Logger logger = Logger.getLogger(ResultsCollector.class
 			.getName());
@@ -45,6 +142,103 @@ public class ResultsCollector {
 	HashMap<Integer, Icon> iconInfo = new HashMap<Integer, Icon>();
 
 	HashMap<Integer, Participant> participantInfo = new HashMap<Integer, Participant>();
+
+	HashMap<String, List<Placement>> placements = new HashMap<String, List<Placement>>();
+	int nExperiments = 0;
+
+	private class Placement implements Comparable {
+		String icon;
+		ResultsCollector.TopoClass topoClass;
+		double timing;// in seconds
+		long timestamp;
+		int group;
+		int order;
+		int orderInGroup;
+
+		@Override
+		public int compareTo(Object otherObject) {
+			Placement otherPlace = (Placement) otherObject;
+			if (timestamp < otherPlace.timestamp) {
+				return -1;
+			} else if (timestamp > otherPlace.timestamp) {
+				return 1;
+			}
+			return 0;
+		}
+
+		public String toString() {
+			return icon + ", ts = " + timestamp + ", timing = " + timing
+					+ ", group = " + group + ", topoClass = " + topoClass;
+		}
+	}
+
+	// Pattern intsOnly = Pattern.compile("\\d+");
+	private String placementListToTopoString(List<Placement> pList) {
+
+		StringBuilder topoString = new StringBuilder();
+
+		for (Placement place : pList) {
+			String code = this.findCode(place.topoClass);
+			topoString.append(code);
+		}
+
+		return topoString.toString();
+	}
+
+	private TopoClass findTopoClass(String fileName) {
+		// logger.info("going to match " + fileName);
+		// find first character that is numeric
+		// Matcher intMatch = intsOnly.matcher(fileName);
+		// String theInt = intMatch.group();
+		// int place = fileName.indexOf(theInt);
+		int place = this.findFirstPlace(fileName);
+		if (place < 0) {
+			return TopoClass.NONE;
+		}
+		String theGroup = fileName.substring(0, place);
+		logger.info("theGroup is :" + theGroup);
+		if (theGroup.contains("Desert-")) {
+			theGroup = theGroup.substring("Desert-".length());
+
+		}
+		if (theGroup.contains("Geometry-")) {
+			theGroup = theGroup.substring("Geometry-".length());
+
+		}
+		if (theGroup.contains("Lake-")) {
+			theGroup = theGroup.substring("Lake-".length());
+
+		}
+		if (theGroup.contains("Oil-")) {
+			theGroup = theGroup.substring("Oil-".length());
+
+		}
+
+		TopoClass tClass = this.findClassFromName(theGroup);
+		return tClass;
+
+	}
+
+	private static char getUnderscore() {
+		String under = "_";
+		char[] chars = under.toCharArray();
+		return chars[0];
+	}
+
+	static char underscore = getUnderscore();
+
+	private int findFirstPlace(String input) {
+		int answer = 0;
+		char[] chars = input.toCharArray();
+
+		for (int i = 0; i < input.length(); i++) {
+			if (chars[i] == underscore) {
+				return i;
+
+			}
+		}
+		return -1;
+	}
 
 	private class Participant {
 
@@ -78,6 +272,111 @@ public class ResultsCollector {
 
 			return false;
 		}
+
+	}
+
+	private class ConfusionPair {
+		ClusterType asserted;
+		ClusterType actual;
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result
+					+ ((actual == null) ? 0 : actual.hashCode());
+			result = prime * result
+					+ ((asserted == null) ? 0 : asserted.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ConfusionPair other = (ConfusionPair) obj;
+			if (!getOuterType().equals(other.getOuterType())) {
+				return false;
+			}
+			if (actual == null) {
+				if (other.actual != null) {
+					return false;
+				}
+			} else if (!actual.equals(other.actual)) {
+				return false;
+			}
+			if (asserted == null) {
+				if (other.asserted != null) {
+					return false;
+				}
+			} else if (!asserted.equals(other.asserted)) {
+				return false;
+			}
+			return true;
+		}
+
+		private ResultsCollector getOuterType() {
+			return ResultsCollector.this;
+		}
+
+	}
+
+	private final HashMap<ConfusionPair, Integer> confusionIndexesAll = new HashMap<ConfusionPair, Integer>();
+	private final HashMap<ConfusionPair, Integer> confusionIndexGreen40 = new HashMap<ConfusionPair, Integer>();
+	private final HashMap<ConfusionPair, Integer> confusionIndexGreen50 = new HashMap<ConfusionPair, Integer>();
+	private final HashMap<ConfusionPair, Integer> confusionIndexGreen60 = new HashMap<ConfusionPair, Integer>();
+
+	private static void printConfusionIndexesAssertedFirst(
+			HashMap<ConfusionPair, Integer> confusionIndexes, String kind) {
+		System.out.println(kind + "Asserted," + kind + "Actual," + kind
+				+ "Count");
+		Set<ConfusionPair> cpSet = confusionIndexes.keySet();
+		Object[] cpArray = cpSet.toArray();
+		// Arrays.sort(cpArray);
+		for (Object obj : cpArray) {
+			ConfusionPair cp = (ConfusionPair) obj;
+			System.out.println(cp.asserted + "," + cp.actual + ","
+					+ confusionIndexes.get(cp));
+
+		}
+	}
+
+	private static void printConfusionIndexesActualFirst(
+			HashMap<ConfusionPair, Integer> confusionIndexes, String kind) {
+		System.out.println(kind + "Actual," + kind + "Asserted," + kind
+				+ "Count");
+		Set<ConfusionPair> cpSet = confusionIndexes.keySet();
+		Object[] cpArray = cpSet.toArray();
+		// Arrays.sort(cpArray);
+		for (Object obj : cpArray) {
+			ConfusionPair cp = (ConfusionPair) obj;
+			System.out.println(cp.actual + "," + cp.asserted + ","
+					+ confusionIndexes.get(cp));
+
+		}
+	}
+
+	private void incrementConfusionIndexes(
+			HashMap<ConfusionPair, Integer> confusionIndexes,
+			ClusterType asserted, ClusterType actual) {
+		ConfusionPair cp = new ConfusionPair();
+		cp.asserted = asserted;
+		cp.actual = actual;
+		Integer count = confusionIndexes.get(cp);
+		if (count == null) {
+			count = 1;
+		} else {
+			count = count + 1;
+		}
+		confusionIndexes.put(cp, count);
 
 	}
 
@@ -201,37 +500,49 @@ public class ResultsCollector {
 			fileHash.put(f.getName(), f);
 		}
 
-		File outputFile = new File(baseDir + "/results_summary.prn");
+		File participantsResultsFile = new File(baseDir
+				+ "/results_summary.prn");
+		File firstIconFile = new File(baseDir + "/times_first.csv");
+		File iconRemovalsFile = new File(baseDir + "/icon_removals.csv");
 
-		FileWriter output = null;
+		FileWriter participantsResultsWriter = null;
+		FileWriter firstIconWriter = null;
+		FileWriter iconRemovalsWriter = null;
 
 		try {
-			output = new FileWriter(outputFile);
+			participantsResultsWriter = new FileWriter(participantsResultsFile);
+			firstIconWriter = new FileWriter(firstIconFile);
+			iconRemovalsWriter = new FileWriter(iconRemovalsFile);
 
 		} catch (IOException e1) {
 
 			e1.printStackTrace();
 		}
-		String line = "Nr" + delimiter + "File-Nr" + delimiter
+		String firstLine = "Nr" + delimiter + "File-Nr" + delimiter
 				+ "Gender (0=male)" + delimiter + "age" + delimiter
-				+ "nr. Groups" + delimiter + "Condition" + delimiter
-				+ "time to group" + delimiter + "subject group descriptions"
-				+ "\n";
-		String correctLine = "participant, Blue001, Blue01, Blue05, Green001, Green01, Green05, BlueGreen001, BlueGreen01, BlueGreen05, Random, Clustered001, Clustered01, Clustered05";
-		correctLine = "participant, Blue, Green, BlueGreen, Dispersed, Random, Clustered";
-		correctLine = correctLine + "\n";
+				+ "nr. Groups" + delimiter + "time to group" + delimiter
+				+ "subject group descriptions" + "\n";
+
 		String returnString = "";
 		ArrayList<Icon> participantCounts = getIconTypes();
 		for (Icon ic : participantCounts) {
 			returnString = returnString + ic.getDescription() + ",";
 		}
 		returnString = returnString + "\n";
-		correctLine = "participant," + returnString;
 
 		try {
-			output.write(line);
+			File FASTAFile = new File(baseDir + "/FASTA.txt");
+			FileWriter FASTAWriter = new FileWriter(FASTAFile);
+			participantsResultsWriter.write(firstLine);
+			firstLine = "Icon Name" + delimiter + "Times first in group" + "\n";
+			firstIconWriter.write(firstLine);
+			iconRemovalsWriter.write("Icon Name" + "," + "Removals" + "\n");
 
 			int nr = 1;
+			HashMap<String, Integer> removalCounts = new HashMap<String, Integer>();
+			HashMap<String, Integer> firstIconCounts = new HashMap<String, Integer>();
+			HashMap<String, Float> iconPlaces = new HashMap<String, Float>();
+			HashMap<String, Float> iconTimings = new HashMap<String, Float>();
 			for (File f : files) {
 				// logger.finest(f.getName());
 				String name = f.getName();
@@ -246,58 +557,395 @@ public class ResultsCollector {
 				if (thisToo && name.contains("participant")
 						&& name.contains(".csv")) {
 
-					try {
+					String line = parseParticipantFile(delimiter, baseDir, nr,
+							f);
+					nr++;
 
-						Scanner scan = new Scanner(f);
-						scan.useDelimiter(",");
-						String fileNum = scan.next();
-						String age = scan.next();
-						String gender = scan.next();
-						if (gender.equals("female")) {
-							gender = "1";
-						} else {
-							gender = "0";
-						}
-						File assignFile = new File(baseDir + "/" + fileNum
-								+ "assignment.csv");
-						logger.info(assignFile.toString());
+					participantsResultsWriter.write(line);
 
-						// String correctResults = "ble";
-						int nGroups = findNGroups(assignFile);
-						// int nGroups = 0;
-						File participantFile = new File(baseDir + "/"
-								+ "participant" + fileNum + ".log");
-
-						double time = findTime(participantFile);
-						File batchFile = new File(baseDir + "/" + fileNum
-								+ "batch.csv");
-
-						String subjectComments = findCommentsForSubject(batchFile);
-
-						line = nr + delimiter + fileNum + delimiter + gender
-								+ delimiter + age + delimiter + nGroups
-								+ delimiter + time + delimiter
-								+ subjectComments + "\n";
-						nr++;
-
-						output.write(line);
-
-					} catch (FileNotFoundException e) {
-
-						e.printStackTrace();
-					}
-
-					// logger.finest("part!!!!!!!!!!");
 				}
+
+				if (name.contains("participant") && name.contains(".log")) {
+					findRemovals(removalCounts, f);
+
+					findFirstIcon(firstIconCounts, f);
+					List<Placement> filePlaces = findPlacesAndTimings(f);
+					this.nExperiments++;
+					this.placements.put(String.valueOf(nExperiments),
+							filePlaces);
+					String topoList = this
+							.placementListToTopoString(filePlaces);
+					logger.info(topoList);
+					FASTAWriter.write(">" + name + "\n");
+					FASTAWriter.write(topoList + "\n");
+
+				}
+			}// next file
+			for (String name : removalCounts.keySet()) {
+				Integer count = removalCounts.get(name);
+				iconRemovalsWriter.write(name + "," + count + "\n");
+			}
+			for (String name : firstIconCounts.keySet()) {
+				Integer count = firstIconCounts.get(name);
+				firstIconWriter.write(name + "," + count + "\n");
 			}
 
-			output.close();
+			FASTAWriter.close();
+			participantsResultsWriter.close();
+			iconRemovalsWriter.close();
+			firstIconWriter.close();
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
+		this.compileAndWritePlacements(baseDir.getAbsolutePath());
 		return "";
+	}
+
+	private void compileAndWritePlacements(String baseDir) {
+
+		// XXX add timing code here
+		HashMap<String, Double> timeToChose = new HashMap<String, Double>();
+		HashMap<String, Double> overallOrder = new HashMap<String, Double>();
+		HashMap<String, Double> orderInGroup = new HashMap<String, Double>();
+		HashMap<ResultsCollector.TopoClass, Double> timeToChoseTopo = new HashMap<ResultsCollector.TopoClass, Double>();
+		HashMap<ResultsCollector.TopoClass, Double> overallOrderTopo = new HashMap<ResultsCollector.TopoClass, Double>();
+		HashMap<ResultsCollector.TopoClass, Double> orderInGroupTopo = new HashMap<ResultsCollector.TopoClass, Double>();
+
+		for (List<Placement> placeList : this.placements.values()) {
+
+			for (Placement place : placeList) {
+				if (timeToChose.containsKey(place.icon) == false) {
+					timeToChose.put(place.icon, place.timing);
+
+				} else {
+					Double totalTime = timeToChose.get(place.icon);
+					totalTime = totalTime + place.timing;
+					timeToChose.put(place.icon, totalTime);
+					logger.info("timing " + place.timing);
+				}
+				if (timeToChoseTopo.containsKey(place.topoClass) == false) {
+					timeToChoseTopo.put(place.topoClass, place.timing);
+
+				} else {
+					Double totalTime = timeToChoseTopo.get(place.topoClass);
+					totalTime = totalTime + place.timing;
+					timeToChoseTopo.put(place.topoClass, totalTime);
+					logger.info("topo timing " + place.timing);
+				}
+
+				if (overallOrder.containsKey(place.icon) == false) {
+					overallOrder.put(place.icon, (double) place.order);
+				} else {
+					Double totalPlace = overallOrder.get(place.icon);
+					totalPlace = totalPlace + place.order;
+					overallOrder.put(place.icon, totalPlace);
+					logger.info("order " + place.order);
+				}
+
+				if (overallOrderTopo.containsKey(place.topoClass) == false) {
+					overallOrderTopo.put(place.topoClass, (double) place.order);
+				} else {
+					Double totalPlace = overallOrderTopo.get(place.topoClass);
+					totalPlace = totalPlace + place.order;
+					overallOrderTopo.put(place.topoClass, totalPlace);
+					logger.info("topo order " + place.order);
+				}
+
+			}
+		}
+
+		for (String icon : timeToChose.keySet()) {
+			Double total = timeToChose.get(icon);
+			Double average = total / this.placements.size();
+			timeToChose.put(icon, average);
+		}
+		for (String icon : overallOrder.keySet()) {
+			Double total = overallOrder.get(icon);
+			Double average = total / this.placements.size();
+			overallOrder.put(icon, average);
+		}
+
+		for (TopoClass tClass : timeToChoseTopo.keySet()) {
+			Double total = timeToChoseTopo.get(tClass);
+			Double average = total / (this.placements.size() * 8);
+			timeToChoseTopo.put(tClass, average);
+		}
+		for (TopoClass tClass : overallOrderTopo.keySet()) {
+			Double total = overallOrderTopo.get(tClass);
+			Double average = total / (this.placements.size() * 8);
+			overallOrderTopo.put(tClass, average);
+		}
+
+		File timeToChoseFile = new File(baseDir + "/timeToChose.csv");
+		File overallOrderFile = new File(baseDir + "/overall_order.csv");
+
+		File timeToChoseFileTopo = new File(baseDir
+				+ "/timeToChoseTopoClass.csv");
+		File overallOrderFileTopo = new File(baseDir
+				+ "/overall_orderTopoClass.csv");
+
+		FileWriter timeToChoseWriter = null;
+		FileWriter overallOrderWriter = null;
+
+		FileWriter timeToChoseWriterTopo = null;
+		FileWriter overallOrderWriterTopo = null;
+
+		try {
+			timeToChoseWriter = new FileWriter(timeToChoseFile);
+			overallOrderWriter = new FileWriter(overallOrderFile);
+
+			timeToChoseWriterTopo = new FileWriter(timeToChoseFileTopo);
+			overallOrderWriterTopo = new FileWriter(overallOrderFileTopo);
+
+			for (String icon : timeToChose.keySet()) {
+				timeToChoseWriter.write(icon + "," + timeToChose.get(icon)
+						+ "\n");
+			}
+			for (String icon : overallOrder.keySet()) {
+				overallOrderWriter.write(icon + "," + overallOrder.get(icon)
+						+ "\n");
+
+			}
+
+			for (TopoClass tClass : timeToChoseTopo.keySet()) {
+				timeToChoseWriterTopo.write(tClass + ","
+						+ timeToChoseTopo.get(tClass) + "\n");
+			}
+			for (TopoClass tClass : overallOrderTopo.keySet()) {
+				overallOrderWriterTopo.write(tClass + ","
+						+ overallOrderTopo.get(tClass) + "\n");
+
+			}
+
+			timeToChoseWriter.close();
+			overallOrderWriter.close();
+
+			timeToChoseWriterTopo.close();
+			overallOrderWriterTopo.close();
+
+		} catch (IOException e1) {
+
+			e1.printStackTrace();
+		}
+
+	}
+
+	private String parseParticipantFile(String delimiter, File baseDir, int nr,
+			File f) throws FileNotFoundException {
+		String line;
+		Scanner scan = new Scanner(f);
+		scan.useDelimiter(",");
+		String fileNum = scan.next();
+		String age = scan.next();
+		String gender = scan.next();
+		if (gender.equals("female")) {
+			gender = "1";
+		} else {
+			gender = "0";
+		}
+		File assignFile = new File(baseDir + "/" + fileNum + "assignment.csv");
+		logger.info(assignFile.toString());
+
+		// String correctResults = "ble";
+		int nGroups = findNGroups(assignFile);
+		// int nGroups = 0;
+		File participantFile = new File(baseDir + "/" + "participant" + fileNum
+				+ ".log");
+
+		double time = findTime(participantFile);
+		File batchFile = new File(baseDir + "/" + fileNum + "batch.csv");
+
+		String subjectComments = findCommentsForSubject(batchFile);
+
+		line = nr + delimiter + fileNum + delimiter + gender + delimiter + age
+				+ delimiter + nGroups + delimiter + time + delimiter
+				+ subjectComments + "\n";
+		return line;
+	}
+
+	private void findRemovals(HashMap<String, Integer> removalCounts, File f)
+			throws FileNotFoundException {
+
+		Scanner fileScan = new Scanner(f);
+		while (fileScan.hasNext()) {
+			String line = fileScan.nextLine();
+
+			if (line.contains("Remove")) {
+				String[] subStrings = line.split(" ");
+				String iconName = findIconName(subStrings);
+				Integer count = removalCounts.get(iconName);
+				if (count == null) {
+					count = 1;
+				} else {
+					count = count + 1;
+				}
+				removalCounts.put(iconName, count);
+			}
+		}
+		fileScan.close();
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Placement> findPlacesAndTimings(File f)
+			throws FileNotFoundException {
+		int currPlace;
+		Scanner fileScan = new Scanner(f);
+
+		long currTime = 0l;
+		HashMap<String, Placement> filePlacements = new HashMap<String, Placement>();
+		while (fileScan.hasNext()) {
+
+			String line = fileScan.nextLine();
+			String[] subStrings = line.split(" ");
+			if (line.contains("Started at")) {
+				if (currTime > 0) {
+					logger.severe("hit non-zero start time");
+				}
+				currTime = Long.valueOf(subStrings[subStrings.length - 1]);
+
+			}
+
+			if (line.contains("Add")) {
+
+				String iconName = findIconName(subStrings);
+				Integer groupNum = null;
+				try {
+					groupNum = this.findGroupNumber(subStrings);
+				} catch (NumberFormatException e) {
+					logger.info("problem with " + f);
+					e.printStackTrace();
+
+					break;
+				}
+				long newTime = Long.valueOf(subStrings[subStrings.length - 1]);
+
+				Placement place = new Placement();
+				place.group = groupNum;
+				place.icon = iconName;
+				place.timestamp = newTime;
+				place.timing = (newTime - currTime) / 1000d;
+				place.topoClass = this.findTopoClass(iconName);
+				currTime = newTime;
+				filePlacements.put(iconName, place);
+				logger.info(place.toString());
+
+			}
+		}
+
+		fileScan.close();
+
+		List<Placement> places = new ArrayList<Placement>(
+				filePlacements.values());
+		Collections.sort(places);
+		for (int i = 0; i < places.size(); i++) {
+			Placement place = places.get(i);
+			place.order = i;
+		}
+
+		findOrderInGroup(places);
+
+		return places;
+	}
+
+	private void findOrderInGroup(List<Placement> places) {
+
+		HashMap<Integer, ArrayList<Placement>> orderedPlacements = new HashMap<Integer, ArrayList<Placement>>();
+		// places must be pre-sorted
+		for (Placement place : places) {
+			int group = place.group;
+			int order = place.order;
+			ArrayList<Placement> placeList = orderedPlacements.get(group);
+			if (placeList == null) {
+				placeList = new ArrayList<Placement>();
+				orderedPlacements.put(group, placeList);
+			}
+
+			placeList.add(place);
+
+		}
+
+		for (ArrayList<Placement> groupList : orderedPlacements.values()) {
+
+			for (int i = 0; i < groupList.size(); i++) {
+				Placement place = groupList.get(i);
+				place.orderInGroup = i + 1;// count from 1, not 0
+				i++;
+			}
+		}
+
+	}
+
+	private void findFirstIcon(HashMap<String, Integer> firstIconCounts, File f)
+			throws FileNotFoundException {
+
+		Scanner fileScan = new Scanner(f);
+		HashMap<Integer, String> firstIcons = new HashMap<Integer, String>();
+		while (fileScan.hasNext()) {
+			String line = fileScan.nextLine();
+
+			if (line.contains("Add")) {
+				String[] subStrings = line.split(" ");
+				String iconName = findIconName(subStrings);
+				Integer groupNum = null;
+				try {
+					groupNum = this.findGroupNumber(subStrings);
+				} catch (NumberFormatException e) {
+					logger.info("problem with " + f);
+					e.printStackTrace();
+
+					break;
+				}
+				boolean alreadyIn = firstIcons.containsKey(groupNum);
+				if (alreadyIn == false) {
+					firstIcons.put(groupNum, iconName);
+				}
+
+			}
+		}
+		for (String iconName : firstIcons.values()) {
+			if (firstIconCounts.containsKey(iconName)) {
+				firstIconCounts
+						.put(iconName, firstIconCounts.get(iconName) + 1);
+			} else {
+				firstIconCounts.put(iconName, 1);
+			}
+		}
+
+		fileScan.close();
+
+	}
+
+	// Remove picture events\WW01C2.gif from group 3 at 1239920132268
+	private String findIconName(String[] subStrings) {
+		for (String s : subStrings) {
+			if (s.contains("events")) {
+				s = s.substring(7);// strip off "events\"
+				s = s.substring(0, s.length() - 4);// remove ".gif"
+				return s;
+			}
+		}
+		return null;
+	}
+
+	// Add picture events\BB001B1.gif to group 3 at 1239920142111
+	private int findGroupNumber(String[] subStrings) {
+		for (int i = 0; i < subStrings.length; i++) {
+			// need to look for "to" otherwise we pick up group deletion
+			if (subStrings[i].equals("group") && subStrings[i - 1].equals("to")) {
+				int groupNum = Integer.parseInt(subStrings[i + 1]);
+				return groupNum;
+			}
+		}
+		return -99;
+	}
+
+	private int findGroupNumber(String line) {
+		int groupNum = -99;
+
+		return groupNum;
 	}
 
 	private String collectResults(String dir) {
@@ -309,9 +957,9 @@ public class ResultsCollector {
 		}
 
 		File detailsFile = new File(baseDir + "/file_details.csv");
-
-		readFileDetails(detailsFile);
-
+		if (detailsFile.exists()) {
+			readFileDetails(detailsFile);
+		}
 		File[] files = baseDir.listFiles();
 		HashMap<String, File> fileHash = new HashMap<String, File>();
 		for (File f : files) {
@@ -423,6 +1071,17 @@ public class ResultsCollector {
 
 			e.printStackTrace();
 		}
+
+		printConfusionIndexesAssertedFirst(confusionIndexesAll, "All");
+		printConfusionIndexesAssertedFirst(confusionIndexGreen40, "Green40");
+		printConfusionIndexesAssertedFirst(confusionIndexGreen50, "Green50");
+		printConfusionIndexesAssertedFirst(confusionIndexGreen60, "Green60");
+
+		printConfusionIndexesActualFirst(confusionIndexesAll, "All");
+		printConfusionIndexesActualFirst(confusionIndexGreen40, "Green40");
+		printConfusionIndexesActualFirst(confusionIndexGreen50, "Green50");
+		printConfusionIndexesActualFirst(confusionIndexGreen60, "Green60");
+
 		return "";
 	}
 
@@ -464,8 +1123,18 @@ public class ResultsCollector {
 			} else {
 				break;
 			}
-			String group = lineScan.next();
-			String name = lineScan.next();
+			if (lineScan.hasNext()) {
+				String group = lineScan.next();
+			} else {
+				break;
+			}
+			String name = "";
+			if (lineScan.hasNext()) {
+				name = lineScan.next();
+			} else {
+				break;
+			}
+
 			fileBuff.append(name + ",");
 			String description = lineScan.next();
 			// if there are any more, separate with semis
@@ -593,10 +1262,29 @@ public class ResultsCollector {
 		ClusterType correctCluster = iconClusterType.get(fileNum);
 		String assertedClusterName = clusterNames.get(assertedGroup);
 		ClusterType assertedCluster = findClusterType(assertedClusterName);
+
 		String significance = iconStrength.get(fileNum);
 		ClusterStrength str = findClusterStrength(significance);
+
 		String proportion = iconColorProportion.get(fileNum);
 		ClusterProportion prop = findClusterProportion(proportion);
+
+		incrementConfusionIndexes(confusionIndexesAll, assertedCluster,
+				correctCluster);
+		if (prop.equals(ClusterProportion.GREEN_40)) {
+			incrementConfusionIndexes(confusionIndexGreen40, assertedCluster,
+					correctCluster);
+
+		} else if (prop.equals(ClusterProportion.GREEN_50)) {
+			incrementConfusionIndexes(confusionIndexGreen50, assertedCluster,
+					correctCluster);
+
+		} else if (prop.equals(ClusterProportion.GREEN_60)) {
+			incrementConfusionIndexes(confusionIndexGreen60, assertedCluster,
+					correctCluster);
+
+		}
+
 		if (logger.isLoggable(Level.FINEST)) {
 			logger.info("Correct cluster: " + correctCluster);
 			logger.info("Asserted cluster: " + assertedCluster);
@@ -819,7 +1507,7 @@ public class ResultsCollector {
 			// logger.finest(group);
 		}
 
-		return group;
+		return group + 1;
 	}
 
 	public static void main(String[] args) {
@@ -835,20 +1523,33 @@ public class ResultsCollector {
 			dir = "./COLOR/";
 			dir = "C:\\data\\publications\\joincount_annals\\results\\expert\\";
 			dir = "C:\\data\\grants\\nsf_klippel09\\different_size\\";
+			dir = "./results/";
+			dir = "C:\\data\\publications\\joincount_annals\\results\\non-expert\\";
+			dir = "C:/Users\\Frank\\Documents\\My Dropbox\\ConCat\\data_frank\\canon\\";
+			dir = "C:\\Users\\Frank\\Desktop\\participant15\\";
+			args = new String[1];
+			args[0] = dir;
 			// printUsage();
 			// System.exit(0);
 		} else {
 			File testDir = new File(args[0]);
 			if (testDir.exists() == false || testDir.isDirectory() == false) {
 				printUsage();
+				logger.info("found: " + args[0]);
 				System.exit(0);
 			}
 			dir = args[0];
 		}
-
+		dir = "C:\\Users\\Frank\\Desktop\\participant15\\";
 		ResultsCollector collector = new ResultsCollector();
 
-		String result = collector.collectDifferentSizeResults(dir);
+		String result = null;
+		// dir =
+		// "C:\\Users\\Frank\\Documents\\My Dropbox\\ConCat\\Experiment_Data\\data_frank\\tornado"
+		// + "\\";
+		// result = collector.collectDifferentSizeResults(dir);
+
+		result = collector.collectDifferentSizeResults(dir);
 
 		if (result.equals("")) {
 			logger.info("Success!");

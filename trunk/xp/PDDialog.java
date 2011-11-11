@@ -43,9 +43,9 @@ public class PDDialog extends JDialog implements ActionListener,
 	JTextField ageText;
 	JTextField sText = new JTextField("", 20);
 	JRadioButton maleRB = new JRadioButton("Male", false);
-	JRadioButton femaleRB = new JRadioButton("Female", true);
+	JRadioButton femaleRB = new JRadioButton("Female", false);
 	JRadioButton leftHandedRB = new JRadioButton("Left", false);
-	JRadioButton rightHandedRB = new JRadioButton("Right", true);
+	JRadioButton rightHandedRB = new JRadioButton("Right", false);
 	JFrame owner;
 	LikertGroupPanel lik;
 	ButtonGroup geoSpatialGroup;
@@ -286,6 +286,27 @@ public class PDDialog extends JDialog implements ActionListener,
 
 		if (sText.getText().equals("")) {
 
+			return false;
+		}
+
+		if (maleRB.isSelected() == false && femaleRB.isSelected() == false) {
+			return false;
+		}
+		if (maleRB.isSelected() == false && femaleRB.isSelected() == false) {
+			return false;
+		}
+
+		if (geoSpatialYes.isSelected() == false
+				&& geoSpatialNo.isSelected() == false) {
+			return false;
+		}
+
+		if (geographyYes.isSelected() == false
+				&& geographyNo.isSelected() == false) {
+			return false;
+		}
+		if (colorBlindYes.isSelected() == false
+				&& colorBlindNo.isSelected() == false) {
 			return false;
 		}
 		if (lik.allChoicesMade() == false) {
