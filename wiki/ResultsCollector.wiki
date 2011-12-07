@@ -10,9 +10,9 @@ ResultsCollector produces the following files (in alphabetical order):
 
   #. *icon_removals.csv*. This is a comma-separated list of all instances in which icons were removed, along with the number of times that icon was removed.
   #. *overall_order.csv*. This is a comma-separated list of the average place in the order in which each icon was chosen. 
-  3. *overall_orderTopoClass.csv". This is a comma-separated list of the average place in the order in which each icon was chosen by topological equivalence class. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
-  4. *times_first.csv*. This is a comma-separated list how many times each icon was selected first in its group.
-  5. *timeToChose.csv*. This is a comma-separated list how long it took for each icon to be used by topological equivalence class, on average. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
+  #. *overall_orderTopoClass.csv". This is a comma-separated list of the average place in the order in which each icon was chosen by topological equivalence class. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
+  #. *times_first.csv*. This is a comma-separated list how many times each icon was selected first in its group.
+  #. *timeToChose.csv*. This is a comma-separated list how long it took for each icon to be used by topological equivalence class, on average. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
 
 If any errors are discovered in either this documentation or in the operation of the ResultsCollector, please contact Frank Hardisty immediately.  
 
