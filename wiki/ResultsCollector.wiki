@@ -1,5 +1,7 @@
 #summary Software that compiles the results of running CatScan.
 
+*Note* This documentation corresponds to the most recent binary release, please access it from our front page. http://code.google.com/p/catscan/
+
 = Details =
 
 You should run ResultsCollector by double-clicking the appropriate .bat file, or by entering the name of the bat file at the command line.
