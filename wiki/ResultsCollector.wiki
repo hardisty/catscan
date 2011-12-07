@@ -15,10 +15,3 @@ ResultsCollector produces the following files (in alphabetical order):
   #. *timeToChose.csv*. This is a comma-separated list how long it took for each icon to be used by topological equivalence class, on average. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
 
 If any errors are discovered in either this documentation or in the operation of the ResultsCollector, please contact Frank Hardisty immediately.  
-
-
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
