@@ -25,3 +25,5 @@ Step 4. (Complete this step only if new icons are desired) Delete the icons from
 Step 5. Click on the "Run CatScan.bat" file to start CatScan. If you see a warning dialog, click "Run" to continue. 
 
 Step 6. Click on the "START" button when you are ready to administer the experiment.  
+
+After running the experiment, you may wish to use the ResultsCollector
