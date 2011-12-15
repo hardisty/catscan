@@ -13,6 +13,7 @@ ResultsCollector produces the following files (in alphabetical order):
   #. *icon_removals.csv*. This is a comma-separated list of all instances in which icons were removed, along with the number of times that icon was removed.
   #. *overall_order.csv*. This is a comma-separated list of the average place in the order in which each icon was chosen. 
   #. *overall_orderTopoClass.csv*. This is a comma-separated list of the average place in the order in which each icon was chosen by topological equivalence class. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
+  #. *results_summary.prn. This is a tab-delimited file that lists the following fields for each subject: number, File-number,Gender (0=male), age, number of groups, time to group, group label, group descriptions. The last two items (group labels and group descriptions) are comma delimited. 
   #. *times_first.csv*. This is a comma-separated list how many times each icon was selected first in its group.
   #. *timeToChose.csv*. This is a comma-separated list how long it took for each icon to be used by topological equivalence class, on average. If you see the entry "NONE", this means that some of your icons did not have a topological equivalence class, or that your classes were not recognized from the icon names. In this case, please contact the software maintainer, Frank Hardisty.
 
